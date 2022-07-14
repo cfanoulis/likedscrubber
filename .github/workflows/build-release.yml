@@ -55,7 +55,7 @@ jobs:
           asset_name: ${{ matrix.asset_name }}
           tag: ${{ github.ref }}
 
-    upload-companion-files:
+  upload-companion-files:
     name: Upload companion .env files
     runs-on: ubuntu-latest
     steps:
@@ -69,4 +69,3 @@ jobs:
           file: .env.example
           asset_name: .env.example
           tag: ${{ github.ref }}
-
