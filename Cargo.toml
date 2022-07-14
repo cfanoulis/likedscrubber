@@ -1,6 +1,6 @@
 [package]
 name = "likedscrubber"
-version = "0.1.0"
+version = "0.0.1"
 authors = ["Charalampos Fanoulis <yo@fanoulis.dev>"]
 repository = "https://github.com/cfanoulis/likedscrubber/"
 license = "Apache-2.0"
