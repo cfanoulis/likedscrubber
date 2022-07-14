@@ -629,6 +629,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "349d5a591cd28b49e1d1037471617a32ddcda5731b99419008085f72d5a53836"
 
 [[package]]
+name = "likedscrubber"
+version = "0.1.0"
+dependencies = [
+ "dotenv",
+ "env_logger 0.9.0",
+ "futures-util",
+ "log",
+ "pretty_env_logger",
+ "rand",
+ "rspotify",
+ "tokio",
+]
+
+[[package]]
 name = "log"
 version = "0.4.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1217,20 +1231,6 @@ checksum = "66d72b759436ae32898a2af0a14218dbf55efde3feeb170eb623637db85ee1e0"
 dependencies = [
  "libc",
  "winapi",
-]
-
-[[package]]
-name = "spoti_clean_liked"
-version = "0.1.0"
-dependencies = [
- "dotenv",
- "env_logger 0.9.0",
- "futures-util",
- "log",
- "pretty_env_logger",
- "rand",
- "rspotify",
- "tokio",
 ]
 
 [[package]]
