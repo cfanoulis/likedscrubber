@@ -6,11 +6,16 @@
 //!
 //! https://rust-lang.github.io/async-book/05_streams/02_iteration_and_concurrency.html
 extern crate pretty_env_logger;
-#[macro_use] extern crate log;
+#[macro_use]
+extern crate log;
 
-use futures_util::{StreamExt};
+use futures_util::StreamExt;
 use rand::RngCore;
-use rspotify::{prelude::*, scopes, AuthCodePkceSpotify, Credentials, OAuth, model::{ PlayableId, TrackId}};
+use rspotify::{
+    model::{PlayableId, TrackId},
+    prelude::*,
+    scopes, AuthCodePkceSpotify, Credentials, OAuth,
+};
 
 #[tokio::main]
 async fn main() {
@@ -22,7 +27,14 @@ async fn main() {
     // May require the `env-file` feature enabled if the environment variables
     // aren't configured manually.
     let creds = Credentials::from_env().unwrap();
-    let oauth = OAuth::from_env(scopes!("user-library-read", "user-library-modify", "playlist-modify-public", "playlist-read-private", "playlist-modify-private")).unwrap();
+    let oauth = OAuth::from_env(scopes!(
+        "user-library-read",
+        "user-library-modify",
+        "playlist-modify-public",
+        "playlist-read-private",
+        "playlist-modify-private"
+    ))
+    .unwrap();
 
     let mut spotify = AuthCodePkceSpotify::new(creds, oauth);
 
@@ -34,17 +46,32 @@ async fn main() {
     let me = spotify.me().await.unwrap();
 
     println!("\n\n\n\n");
-    warn!("Hi {}! Let's get your Liked Songs all clean up", &me.display_name.unwrap_or_else(|| "random user".to_string()));
+    warn!(
+        "Hi {}! Let's get your Liked Songs all clean up",
+        &me.display_name.unwrap_or_else(|| "random user".to_string())
+    );
     let old_songs_id = rand::rngs::ThreadRng::default().next_u32() % 24;
-    let playlist = spotify.user_playlist_create(&me.id, &format!("Your old songs # {}", old_songs_id.to_string()), Some(false), Some(false), Some("Your old songs, as saved by spoti_clean_liked")).await.unwrap();
+    let playlist = spotify
+        .user_playlist_create(
+            &me.id,
+            &format!("Your old songs # {}", old_songs_id.to_string()),
+            Some(false),
+            Some(false),
+            Some("Your old songs, as saved by spoti_clean_liked"),
+        )
+        .await
+        .unwrap();
     warn!("Playlist made, time to go KABOOM!");
     let stream = spotify.current_user_saved_tracks(None);
-    let liked_songs = stream.filter_map(|x| async move {
-        match x {
-            Ok(track) => Some(track.track.id.unwrap()),
-            Err(_) => None
-        }
-    }).collect::<Vec<TrackId>>().await;
+    let liked_songs = stream
+        .filter_map(|x| async move {
+            match x {
+                Ok(track) => Some(track.track.id.unwrap()),
+                Err(_) => None,
+            }
+        })
+        .collect::<Vec<TrackId>>()
+        .await;
 
     let chunks = liked_songs.chunks(50);
 
@@ -55,7 +82,9 @@ async fn main() {
             .map(|id| id as &dyn PlayableId)
             .collect::<Vec<&dyn PlayableId>>();
 
-        let playlist_result = spotify.playlist_add_items(&playlist.id,playable, None).await;
+        let playlist_result = spotify
+            .playlist_add_items(&playlist.id, playable, None)
+            .await;
         match playlist_result {
             Ok(_) => {
                 warn!("* Added {} songs to your archive,", chunk.len());
@@ -66,7 +95,7 @@ async fn main() {
                 std::process::exit(1)
             }
         }
-        
+
         let liked_removed_result = spotify.current_user_saved_tracks_delete(chunk).await;
         match liked_removed_result {
             Ok(_) => {
