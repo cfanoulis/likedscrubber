@@ -16,7 +16,7 @@ use rspotify::{prelude::*, scopes, AuthCodePkceSpotify, Credentials, OAuth, mode
 async fn main() {
     // You can use any logger for debugging.
     let mut log_builder = pretty_env_logger::formatted_builder();
-    log_builder.filter_level(log::LevelFilter::Info);
+    log_builder.filter_level(log::LevelFilter::Warn);
     log_builder.init();
 
     // May require the `env-file` feature enabled if the environment variables
@@ -34,7 +34,7 @@ async fn main() {
     let me = spotify.me().await.unwrap();
 
     println!("\n\n\n\n");
-    info!("Hi {}! Let's get your Liked Songs all clean up", &me.display_name.unwrap_or_else(|| "random user".to_string()));
+    warn!("Hi {}! Let's get your Liked Songs all clean up", &me.display_name.unwrap_or_else(|| "random user".to_string()));
     let old_songs_id = rand::rngs::ThreadRng::default().next_u32() % 24;
     let playlist = spotify.user_playlist_create(&me.id, &format!("Your old songs # {}", old_songs_id.to_string()), Some(false), Some(false), Some("Your old songs, as saved by spoti_clean_liked")).await.unwrap();
     warn!("Playlist made, time to go KABOOM!");
@@ -58,7 +58,7 @@ async fn main() {
         let playlist_result = spotify.playlist_add_items(&playlist.id,playable, None).await;
         match playlist_result {
             Ok(_) => {
-                info!("* Added {} songs to your archive,", chunk.len());
+                warn!("* Added {} songs to your archive,", chunk.len());
             }
             Err(e) => {
                 error!("Failed to add songs to your archive: {}", e);
@@ -70,7 +70,7 @@ async fn main() {
         let liked_removed_result = spotify.current_user_saved_tracks_delete(chunk).await;
         match liked_removed_result {
             Ok(_) => {
-                info!("And waved {} songs goodbye from your likes", chunk.len());
+                warn!("And waved {} songs goodbye from your likes", chunk.len());
             }
             Err(e) => {
                 error!("Failed to remove songs: {}", e);
@@ -78,5 +78,5 @@ async fn main() {
         }
     }
 
-    info!("Done! Enjoy your clean slate!")
+    warn!("Done! Enjoy your clean slate!")
 }
