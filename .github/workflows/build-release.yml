@@ -1,6 +1,7 @@
 on:
   release:
-    types: [published]
+    types:
+      - released
 
 name: Build for publishing
 
@@ -29,6 +30,16 @@ jobs:
         with:
           profile: minimal
           toolchain: stable
+
+      - uses: actions/cache@v3
+        with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
 
       - name: Build on ${{ matrix.os }}
         uses: actions-rs/cargo@v1
