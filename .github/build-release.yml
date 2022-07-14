@@ -1,0 +1,45 @@
+on:
+  release:
+    types: [published]
+
+name: Build for publishing
+
+jobs:
+  build-release:
+    name: Build executable for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: likedscrubber
+            asset_name: likedscrubber-linux-amd64
+          - os: windows-latest
+            artifact_name: likedscrubber.exe
+            asset_name: likedscrubber-windows-amd64
+          - os: macos-latest
+            artifact_name: likedscrubber
+            asset_name: likedscrubber-macos-amd64
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Get Rust toolchain
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: stable
+
+      - name: Build on ${{ matrix.os }}
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --locked --release
+
+      - name: Upload binaries to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/release/${{ matrix.artifact_name }}
+          asset_name: ${{ matrix.asset_name }}
+          tag: ${{ github.ref }}
